@@ -132,7 +132,7 @@ def key_release(key):
 
 
 class PlayerCharacter(object):
-    def __init__(self, radar, hit_x=HIT_X, hit_y=HIT_Y, radius=3,moveleft= True):
+    def __init__(self, radar, hit_x=HIT_X, hit_y=HIT_Y, radius=3, moveleft= True):
         self.hit_x = hit_x
         self.hit_y = hit_y
         self.radius = radius

@@ -84,9 +84,7 @@ class Radar(object):
         self.update_fov()
         # self.curr_fov.show()
         diff_img = ImageChops.difference(old_fov, self.curr_fov)
-        diff_img.save('temp.bmp')
         #diff_img.show()
-        
         return ImageOps.grayscale(diff_img)
 
     def scan_fov(self):
