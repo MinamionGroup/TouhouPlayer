@@ -8,6 +8,14 @@ import random
 import os
 import time
 import logging
+import win32clipboard
+import random
+
+TH06_keyword='the Embodiment of Scarlet Devil'
+touch_L=0
+touch_R=0
+touch_T=0
+touch_D=0
 SendInput = ctypes.windll.user32.SendInput
 """
 logging.basicConfig(filename='thplayer.log',level=logging.DEBUG)
@@ -107,14 +115,16 @@ HIT_Y = 385
 
 def key_press(key):
     # TODO: Make this non-blocking
-    PressKey(key)
+        PressKey(key)
+        time.sleep(.02)
+        ReleaseKey(key)
+        
     # reactor.callLater(.02, win32api.keybd_event,key, 0,
     #                   win32con.KEYEVENTF_KEYUP, 0)
-    time.sleep(.02)
-    ReleaseKey(key)
+            
 
 def key_hold(self, key):
-    PressKey(key)
+        PressKey(key)
 
 def key_release(key):
     ReleaseKey(key)
@@ -122,14 +132,14 @@ def key_release(key):
 
 
 class PlayerCharacter(object):
-    def __init__(self, radar, hit_x=HIT_X, hit_y=HIT_Y, radius=3):
+    def __init__(self, radar, hit_x=HIT_X, hit_y=HIT_Y, radius=3,moveleft= True):
         self.hit_x = hit_x
         self.hit_y = hit_y
         self.radius = radius
         self.width = 62
         self.height = 82    # slight overestimation
         self.radar = radar
-
+        self.moveleft = moveleft
     def move_left(self):
         # for i in range(4):
         # TODO: Hitbox should not be allowed to move outside of gameplay area
@@ -165,19 +175,64 @@ class PlayerCharacter(object):
 
     def evade(self):
         h_dists, v_dists = self.radar.obj_dists
-        if h_dists.size > 0:
-            if self.hit_x < 0:
-                self.move_left()
-            else :
-                if self.hit_x > 400:
-                    self.move_left()
-        #logging.debug(h_dists, v_dists)
-
         print(self.hit_x, self.hit_y)
+        #print( h_dists.size,  v_dists.size)
+        if h_dists.size > 0:
+            #print('in coming!')
+            #print('move to left')
+            if self.hit_x < 90:
+                    self.moveleft = False
+            if self.hit_x >270:
+                    self.moveleft = True
+            if  self.moveleft:
+                self.move_left()
+            else:
+                self.move_right()
+            #if random.randint(0,20)>5:
+            #    self.move_down();
+            #else:
+             #   self.move_up()
+            
+        else:
+            if  self.moveleft:
+                self.moveleft = False
+            else:
+                self.moveleft = True
+        #else:
+            #self.move_to(192,385)
+            #else:
+            #    self.move_right()
+            #else :
+            #    if self.hit_x > 400:
+            #        print('touch right')
+            #        self.move_left()
+        #logging.debug(h_dists, v_dists)
+        #if self.hit_x < -20:
+        #    touch_L = 1
+         #   print('touch left')
+        
 
     def move_to(self, x, y):
+        move_x=self.hit_x -x
+        move_y=self.hit_y - y
+        print(move_x,move_y)
+        if move_x <0:
+            #while move_x>0:
+            self.move_left()
+        else:
+            move_x=0-move_x
+            #while move_x>0:
+            self.move_right()
+        if move_y >0:
+            #while move_y>0:
+            self.move_up()
+
+        else:
+            move_y=0-move_y
+            #while move_x>0:
+            self.move_down()
         """Bring character to (x, y)"""
-        pass
+        #pass
 
     def start(self):
         self.shoot_constantly = LoopingCall(self.shoot)
@@ -191,14 +246,14 @@ class PlayerCharacter(object):
 def start_game():
     time.sleep(2)
     for i in range(5):
-        key_press(0x5A)
+        key_press(0x2c)
         time.sleep(1.5)
 
 def main():
+    print ("#auto drive start#")
     start_game()
     radar = Radar((HIT_X, HIT_Y))
     player = PlayerCharacter(radar)
-
     reactor.callWhenRunning(player.start)
     reactor.callWhenRunning(radar.start)
     reactor.run()
