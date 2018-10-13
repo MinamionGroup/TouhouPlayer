@@ -110,8 +110,8 @@ MISC = {'shift': 0x10,  # focus
 ATK = {'z': 0x2C,      # shoot
        'x': 0x2D}      # bomb
 
-HIT_X = 192
-HIT_Y = 385
+HIT_X = 195
+HIT_Y = 490
 
 def key_press(key):
     # TODO: Make this non-blocking
@@ -165,7 +165,7 @@ class PlayerCharacter(object):
     def shift(self, dir):     # Focused movement
         key_hold(MISC['shift'])
         key_press(MOVE[dir])
-        key.key_release(MISC['shift'])
+        key_release(MISC['shift'])
 
     def shoot(self):
         key_press(ATK['z'])
@@ -174,6 +174,8 @@ class PlayerCharacter(object):
         key_press(ATK['x'])
 
     def evade(self):
+        self.hit_x = self.radar.center_x
+        self.hit_y = self.radar.center_y
         h_dists, v_dists = self.radar.obj_dists
         print(self.hit_x, self.hit_y)
         #print( h_dists.size,  v_dists.size)
@@ -238,7 +240,6 @@ class PlayerCharacter(object):
         self.shoot_constantly = LoopingCall(self.shoot)
         self.bomb_occasionally = LoopingCall(self.bomb)
         self.evader = LoopingCall(self.evade)
-
         self.shoot_constantly.start(0)
         self.evader.start(.03)
         # self.bomb_occasionally.start(10, False)

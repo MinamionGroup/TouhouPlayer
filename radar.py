@@ -24,7 +24,8 @@ import Tkinter
 
 
 GAME_RECT = {'x0': 35, 'y0': 42, 'dx': 480, 'dy': 560}
-def take_screenshot(x0, y0, dx, dy): #截图
+global centerx, centery
+def take_screenshot(x0, y0, dx, dy):
     """
     Takes a screenshot of the region of the active window starting from
     (x0, y0) with width dx and height dy.
@@ -53,17 +54,17 @@ class Radar(object):
         self.y0 = GAME_RECT['y0']
         self.dx = GAME_RECT['dx']
         self.dy = GAME_RECT['dy']
-
         # TODO: Keep updating center to match character's hitbox
+        global centerx, centery
+        centerx, centery = (hit_x, hit_y)
+        self.recommend = True
         self.center_x, self.center_y = (hit_x, hit_y)
-
         self.apothem = 50         # Distance within which to check for hostiles
         self.curr_fov = take_screenshot(self.x0, self.y0, self.dx, self.dy)
         self.obj_dists = (np.empty(0), np.empty(0))  # distances of objects in fov
         self.blink_time = .01           # Pause between screenshots
         self.diff_threhold = 90        # Diffs above this are dangerous
-
-        # TODO: Call self.scan_fov only when self.curr_fov is updated
+        # TODO: Call self.scan_fov only when self.curr_fov is updated)
         self.scanner = LoopingCall(self.scan_fov)
 
     def update_fov(self):
@@ -93,16 +94,33 @@ class Radar(object):
         (in terms of the current fov) of detected objects.
         """
         diff_array = np.array(self.get_diff())
-
         # Get the slice of the array representing the fov
         # NumPy indexing: array[rows, cols]
+        global centerx, centery
         x = self.center_x
         y = self.center_y
+        #print("center",x, y)
+        minx, miny = max(1,y-5), min(y+5,diff_array.shape[0])
+        maxx, maxy = max(1,x-5), min(x+5,diff_array.shape[1])
+        for i in range (max(1,y-5),min(y+5,diff_array.shape[0])):
+            for j in range (max(1,x-5),min(x+5,diff_array.shape[1])):
+                if diff_array[i,j] > 80 :
+                    minx = min(minx, j)
+                    maxx = max(maxx, j)
+                    miny = min(miny, i)
+                    maxy = max(maxy, i)
+        #print("minmax",minx,maxx,miny,maxy)
+        self.center_x = centerx = (minx + maxx) / 2
+        self.center_y = centery = (miny + maxy) / 2
+        #print("fix",x-centerx, y-centery, centerx, centery)
+        x = centerx
+        y = centery
         apothem = self.apothem
         # Look at front, left, and right of hitbox
         fov_array = diff_array[x-apothem:x+apothem, y-apothem:y]
+        fov_array[fov_array < self.diff_threhold] = 0
+        self.obj_locs = np.transpose(np.nonzero(fov_array))
         fov_center = fov_array[fov_array[0].size/2]
-
         # Zero out low diff values; get the indices of non-zero values.
         # Note: fov_array is a view of diff_array that gets its own set of indices starting at 0,0
         fov_array[fov_array < self.diff_threhold] = 0
@@ -115,7 +133,7 @@ class Radar(object):
             self.obj_dists = self.get_distance(obj_locs, fov_center)
         else:
             self.obj_dists = (np.empty(0), np.empty(0))
-        #print(self.obj_dists)
+
 
     def get_distance(self, locs, reference):
         """Get horizontal and vertical distances of objects in fov as a pair
@@ -124,6 +142,10 @@ class Radar(object):
         v_dists = (locs[:, 1] - reference[1])
         #print(h_dists[0])
         return (h_dists, v_dists)
+
+    #def update_hit(self):
+
+
 
     def start(self):
         self.curr_img = self.update_fov()
@@ -139,7 +161,9 @@ class Radar(object):
                 cvimg = cv.cvtColor(numpy.asarray(self.curr_fov),cv.COLOR_RGB2BGR)  
                 #cvimg = numpy.asarray(self.get_diff())  
                 #im_at_mean = cv.adaptiveThreshold(im_gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 5, 7)
-                cv.resizeWindow("OpenCV", 480, 520);
+                ret, im_thre = cv.threshold(cvimg, 127, 255, cv.THRESH_BINARY)
+                cv.circle(cvimg, (self.center_x, self.center_y), 7, (0, 0, 255), 1)
+                #cv.resizeWindow("OpenCV", 480, 520);
                 cv.imshow("OpenCV",cvimg)
                 cv.waitKey(1)
                 #cv.destroyAllWindows()
@@ -150,7 +174,7 @@ class Radar(object):
 
     
 def main():
-    radar = Radar((192, 385))
+    radar = Radar((195, 490))
     
     #reactor.callWhenRunning(cv.imshow("OpenCV",cvimg))
     reactor.callWhenRunning(radar.start)
