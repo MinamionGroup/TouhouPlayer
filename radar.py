@@ -23,7 +23,7 @@ import Tkinter
 #root.geometry(geometryParam)    #设置窗口大小及偏移坐标
 
 
-GAME_RECT = {'x0': 35, 'y0': 42, 'dx': 480, 'dy': 560}
+GAME_RECT = {'x0': 35, 'y0': 42, 'dx': 384, 'dy': 448}
 global centerx, centery
 def take_screenshot(x0, y0, dx, dy):
     """
@@ -46,7 +46,7 @@ def take_screenshot(x0, y0, dx, dy):
     cDC.DeleteDC()
     win32gui.ReleaseDC(hwnd, wDC)
 
-    return Image.frombuffer("RGBA", (480, 560), image, "raw", "RGBA", 0, 1)
+    return Image.frombuffer("RGBA", (384, 448), image, "raw", "RGBA", 0, 1)
 
 class Radar(object):
     def __init__(self, (hit_x, hit_y)):
@@ -158,7 +158,8 @@ class Radar(object):
             #root.mainloop()
 
             while 1:
-                cvimg = cv.cvtColor(numpy.asarray(self.curr_fov),cv.COLOR_RGB2BGR)  
+                #self.curr_fov.show()
+                cvimg = cv.cvtColor(numpy.asarray(self.curr_fov),cv.COLOR_RGB2GRAY)  
                 #cvimg = numpy.asarray(self.get_diff())  
                 #im_at_mean = cv.adaptiveThreshold(im_gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 5, 7)
                 ret, im_thre = cv.threshold(cvimg, 127, 255, cv.THRESH_BINARY)
