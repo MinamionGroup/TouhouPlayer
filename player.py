@@ -12,16 +12,16 @@ SendInput = ctypes.windll.user32.SendInput
 """
 logging.basicConfig(filename='thplayer.log',level=logging.DEBUG)
 
-MOVE = {'left': 0x25,   # 2 pixels each movement
-        'up': 0x26,
-        'right': 0x27,
-        'down': 0x28}
+MOVE = {'left': 0xCB    ,   # 2 pixels each movement
+        'up': 0xC8    ,
+        'right': 0xCD    ,
+        'down': 0xD0    }
 
-MISC = {'shift': 0x10,  # focus
-        'esc': 0x1B}
+MISC = {'shift': 0x2A,  # focus
+        'esc': 0x01}
 
-ATK = {'z': 0x5A,      # shoot
-       'x': 0x58}      # bomb
+ATK = {'z': 0x2C,      # shoot
+       'x': 0x2D} 
 
 HIT_X = 192
 HIT_Y = 385
