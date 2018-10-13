@@ -91,16 +91,16 @@ def ReleaseKey(hexKeyCode):
 
 logging.basicConfig(filename='thplayer.log',level=logging.DEBUG)
 
-MOVE = {'left': 0x25,   # 2 pixels each movement
-        'up': 0x26,
-        'right': 0x27,
-        'down': 0x28}
+MOVE = {'left': 0xCB,   # 2 pixels each movement
+        'up': 0xC8,
+        'right': 0xCD,
+        'down': 0xD0}
 
 MISC = {'shift': 0x10,  # focus
-        'esc': 0x1B}
+        'esc': 0x01}
 
 ATK = {'z': 0x2C,      # shoot
-       'x': 0x58}      # bomb
+       'x': 0x2D}      # bomb
 
 HIT_X = 192
 HIT_Y = 385
@@ -166,7 +166,11 @@ class PlayerCharacter(object):
     def evade(self):
         h_dists, v_dists = self.radar.obj_dists
         if h_dists.size > 0:
-            self.move_left()
+            if self.hit_x < 0:
+                self.move_left()
+            else :
+                if self.hit_x > 400:
+                    self.move_left()
         #logging.debug(h_dists, v_dists)
 
         print(self.hit_x, self.hit_y)
