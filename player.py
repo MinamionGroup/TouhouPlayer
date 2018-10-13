@@ -122,13 +122,14 @@ def key_release(key):
 
 
 class PlayerCharacter(object):
-    def __init__(self, radar, hit_x=HIT_X, hit_y=HIT_Y, radius=3):
+    def __init__(self, radar, hit_x=HIT_X, hit_y=HIT_Y, radius=3, moveleft= True):
         self.hit_x = hit_x
         self.hit_y = hit_y
         self.radius = radius
         self.width = 62
         self.height = 82    # slight overestimation
         self.radar = radar
+        self.moveleft = moveleft
 
     def move_left(self):
         # for i in range(4):
@@ -166,11 +167,14 @@ class PlayerCharacter(object):
     def evade(self):
         h_dists, v_dists = self.radar.obj_dists
         if h_dists.size > 0:
-            if self.hit_x < 0:
+            if self.moveleft:
                 self.move_left()
-            else :
-                if self.hit_x > 400:
-                    self.move_left()
+                if self.hit_x < 0:
+                    self.moveleft = False
+            else:
+                self.move_right()
+                if self.hit_x > 384:
+                    self.moveleft = True
         #logging.debug(h_dists, v_dists)
 
         print(self.hit_x, self.hit_y)
@@ -191,7 +195,7 @@ class PlayerCharacter(object):
 def start_game():
     time.sleep(2)
     for i in range(5):
-        key_press(0x5A)
+        key_press(0x2c)
         time.sleep(1.5)
 
 def main():
