@@ -177,7 +177,7 @@ class PlayerCharacter(object):
         self.hit_x = self.radar.center_x
         self.hit_y = self.radar.center_y
         h_dists, v_dists = self.radar.obj_dists
-        print(self.hit_x, self.hit_y)
+        #print(self.hit_x, self.hit_y)
         #print( h_dists.size,  v_dists.size)
         if h_dists.size > 0:
             #print('in coming!')
@@ -237,18 +237,18 @@ class PlayerCharacter(object):
         #pass
 
     def start(self):
-        self.shoot_constantly = LoopingCall(self.shoot)
+        #self.shoot_constantly = LoopingCall(self.shoot)
         self.bomb_occasionally = LoopingCall(self.bomb)
         self.evader = LoopingCall(self.evade)
-        self.shoot_constantly.start(0)
+        #self.shoot_constantly.start(0)
         self.evader.start(.03)
         # self.bomb_occasionally.start(10, False)
 
 def start_game():
     time.sleep(2)
-    for i in range(5):
+    for i in range(6):
         key_press(0x2c)
-        time.sleep(1.5)
+        time.sleep(2)
 
 def main():
     print ("#auto drive start#")
