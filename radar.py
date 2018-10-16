@@ -13,7 +13,7 @@ import numpy
 import _thread as thread
 import subprocess
 import re
-
+get_screenshot = False
 GAME_RECT = {'x0': 35, 'y0': 42, 'dx': 384, 'dy': 448}
 global centerx, centery
 def take_screenshot(x0, y0, dx, dy):
@@ -36,8 +36,10 @@ def take_screenshot(x0, y0, dx, dy):
     dcObj.DeleteDC()
     cDC.DeleteDC()
     win32gui.ReleaseDC(hwnd, wDC)
-
+    win32gui.DeleteObject(dataBitMap.GetHandle())
+    get_screenshot = True
     return Image.frombuffer("RGBA", (384, 448), image, "raw", "RGBA", 0, 1)
+
 
 class Radar(object):
     def __init__(self, hit_x, hit_y):
@@ -73,7 +75,7 @@ class Radar(object):
         # time.sleep(.03) # TODO: Make this non-blocking
         old_fov = self.curr_fov
         # old_fov.show()
-        self.update_fov()
+        self.update_fov()  
         # self.curr_fov.show()
         diff_img = ImageChops.difference(old_fov, self.curr_fov)
         #diff_img.show()
@@ -89,13 +91,13 @@ class Radar(object):
         # Get the slice of the array representing the fov
         # NumPy indexing: array[rows, cols]
         global centerx, centery
-        x = self.center_x
-        y = self.center_y
+        x = int(self.center_x)
+        y = int(self.center_y)
         #print("center",x, y)
         #"""
         minx, miny = max(1,y-5), min(y+5,diff_array.shape[0])
         maxx, maxy = max(1,x-5), min(x+5,diff_array.shape[1])
-        for i in range (max(1,y-5),min(y+5,diff_array.shape[0])):
+        for i in range (max(1,y-5),min(y+5,int(diff_array.shape[0]))):
             for j in range (max(1,x-5),min(x+5,diff_array.shape[1])):
                 if diff_array[i,j] > 80 :
                     #"""
@@ -118,10 +120,10 @@ class Radar(object):
         y = centery
         apothem = self.apothem
         # Look at front, left, and right of hitbox
-        fov_array = diff_array[x-apothem:x+apothem, y-apothem:y]
+        fov_array = diff_array[int(x)-apothem:int(x)+apothem, int(y)-apothem:int(y)]
         fov_array[fov_array < self.diff_threhold] = 0
         self.obj_locs = np.transpose(np.nonzero(fov_array))
-        fov_center = fov_array[fov_array[0].size/2]
+        fov_center = fov_array[int(int(fov_array[0].size)/2)]
         # Zero out low diff values; get the indices of non-zero values.
         # Note: fov_array is a view of diff_array that gets its own set of indices starting at 0,0
         fov_array[fov_array < self.diff_threhold] = 0
