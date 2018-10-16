@@ -132,6 +132,7 @@ def key_release(key):
 
 
 class PlayerCharacter(object):
+    
     def __init__(self, radar, hit_x=HIT_X, hit_y=HIT_Y, radius=3, moveleft= True):
         self.hit_x = hit_x
         self.hit_y = hit_y
@@ -140,6 +141,7 @@ class PlayerCharacter(object):
         self.height = 82    # slight overestimation
         self.radar = radar
         self.moveleft = moveleft
+        bombcooldown = 0
     def move_left(self):
         # for i in range(4):
         # TODO: Hitbox should not be allowed to move outside of gameplay area
@@ -177,14 +179,14 @@ class PlayerCharacter(object):
         self.hit_x = self.radar.center_x
         self.hit_y = self.radar.center_y
         h_dists, v_dists = self.radar.obj_dists
-        print(self.hit_x, self.hit_y)
+        #print(self.hit_x, self.hit_y)
         #print( h_dists.size,  v_dists.size)
         if h_dists.size > 0:
             #print('in coming!')
             #print('move to left')
-            if self.hit_x < 90:
+            if self.hit_x < 100:
                     self.moveleft = False
-            if self.hit_x >270:
+            if self.hit_x >250:
                     self.moveleft = True
             if  self.moveleft:
                 self.move_left()
@@ -200,6 +202,22 @@ class PlayerCharacter(object):
                 self.moveleft = False
             else:
                 self.moveleft = True
+        try:
+            sum = 0
+            for i in abs(h_dists) + abs(v_dists):
+                if i < 100 and self.bombcooldown == 0:
+                    sum += 1
+            if sum > 50:
+                self.bomb()
+                self.bombcooldown = 100
+            if self.bombcooldown > 0:
+                self.bombcooldown -= 1
+        except:
+            pass
+
+
+        print("h",h_dists)
+        print("v",v_dists)
         #else:
             #self.move_to(192,385)
             #else:
@@ -253,7 +271,7 @@ def start_game():
 def main():
     print ("#auto drive start#")
     start_game()
-    radar = Radar((HIT_X, HIT_Y))
+    radar = Radar(HIT_X, HIT_Y)
     player = PlayerCharacter(radar)
     reactor.callWhenRunning(player.start)
     reactor.callWhenRunning(radar.start)
