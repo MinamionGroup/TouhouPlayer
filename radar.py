@@ -2,6 +2,7 @@
 import win32api, win32con, win32gui, win32ui
 import numpy as np
 from matplotlib import pyplot as plt
+#import PIL
 from PIL import Image, ImageChops, ImageOps
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
@@ -10,7 +11,8 @@ import os
 import time
 import numpy
 import queue
-import thread6
+import _thread as thread
+
 # Coordinates for gameplay area 
 #root = Tkinter.Tk()
 #root.title('th06_imgget')        #窗口标题
@@ -201,8 +203,8 @@ class Radar(object):
                 cvimg = cv.cvtColor(numpy.asarray(self.curr_fov),cv.COLOR_RGB2GRAY)
                 #cvimg = numpy.asarray(self.get_diff())  
                 #im_at_mean = cv.adaptiveThreshold(im_gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 5, 7)
-                ret, im_thre = cv.threshold(cvimg, 127, 255, cv.THRESH_BINARY)
-                cv.circle(cvimg, (self.center_x, self.center_y), 7, (0, 0, 255), 3)
+                #ret, im_thre = cv.threshold(cvimg, 127, 255, cv.THRESH_BINARY)
+                #cv.circle(cvimg, (self.center_x, self.center_y), 7, (0, 0, 255), 3)
                 '''
                 for i in range(len(self.boxlist[0])):
                     cv.rectangle(cvimg, (self.boxlist[2][i], self.boxlist[0][i]), (self.boxlist[3][i], self.boxlist[1][i]), (0, 255, 0), 3)
