@@ -2,6 +2,7 @@
 import win32api, win32con, win32gui, win32ui
 import numpy as np
 from matplotlib import pyplot as plt
+#import PIL
 from PIL import Image, ImageChops, ImageOps
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
@@ -9,11 +10,12 @@ import cv2 as cv
 import cv2
 import os
 import time
+
 import numpy  
 import _thread as thread
 import subprocess
 import re
-get_screenshot = False
+
 GAME_RECT = {'x0': 35, 'y0': 42, 'dx': 384, 'dy': 448}
 global centerx, centery
 def take_screenshot(x0, y0, dx, dy):
@@ -60,6 +62,7 @@ class Radar(object):
         # TODO: Call self.scan_fov only when self.curr_fov is updated)
         self.scanner = LoopingCall(self.scan_fov)
         self.boxlist = [[],[],[],[]]
+
     def update_fov(self):
         """Takes a screenshot and makes it the current fov."""
         # TODO: Only need to record the part we actually examine in scan_fov
@@ -87,13 +90,53 @@ class Radar(object):
         (in terms of the current fov) of detected objects.
         """
         diff_array = np.array(self.get_diff())
-        #is_visited = [[False for x in range(diff_array.shape[0])] for y in range(diff_array.shape[1])]
+
+        is_visited = [[False for x in range(diff_array.shape[0])] for y in range(diff_array.shape[1])]
+        '''
+        direction = [[0,1],[0,-1],[1,0],[-1,0],[-1,-1],[-1,1],[1,-1],[1,1]]
+        self.boxlist = [[],[],[],[]]
+        for x in range(diff_array.shape[0]):
+            for y in range(diff_array.shape[1]):
+                que = Queue.Queue()
+                if is_visited[x][y]:
+                    continue
+                elif diff_array[x,y] > 90:
+                    is_visited[x][y] = True
+                    que.put((x,y))
+                    xmin, xmax = diff_array.shape[0], 1
+                    ymin, ymax = diff_array.shape[1], 1
+                    while not que.empty():
+                        pt = que.get()
+                        for dir in direction:
+                            xnew = pt[0] + dir[0]
+                            ynew = pt[1] + dir[1]
+                            print(xnew,ynew)
+                            if xnew<0 or ynew<0 or xnew>diff_array.shape[0]-1 or ynew>diff_array.shape[1]-1 or is_visited[xnew][ynew]:
+                                continue
+                            elif diff_array[xnew,ynew] >90:
+                                is_visited[pt[0]][pt[1]] = True
+                                que.put((xnew,ynew))
+                                xmin = min(xmin, xnew)
+                                xmax = max(xmax, xnew)
+                                ymin = min(ymin, ynew)
+                                ymax = max(ymax, ynew)
+                            else:
+                                is_visited = True
+                    self.boxlist[0].append(xmin)
+                    self.boxlist[1].append(xmax)
+                    self.boxlist[2].append(ymin)
+                    self.boxlist[3].append(ymax)
+                else:
+                    is_visited[x][y] = True
+'''
+
         # Get the slice of the array representing the fov
         # NumPy indexing: array[rows, cols]
         global centerx, centery
         x = int(self.center_x)
         y = int(self.center_y)
         #print("center",x, y)
+
         #"""
         minx, miny = max(1,y-5), min(y+5,diff_array.shape[0])
         maxx, maxy = max(1,x-5), min(x+5,diff_array.shape[1])
@@ -108,6 +151,7 @@ class Radar(object):
         #for i in range (max(1,y-dis),min(y+dis,diff_array.shape[0])):
         #    for j in range (max(1,x-dis),min(x+dis,diff_array.shape[1])):
         #        if diff_array[i,j] > 50 :
+
                     minx = min(minx, j)
                     maxx = max(maxx, j)
                     miny = min(miny, i)
@@ -218,17 +262,36 @@ class Radar(object):
             pattern = re.compile(r'\(\d{5}\,\d{5}\)')
 
             while 1:
+
                 MATCH = pattern.match(str(r.stdout)).groups()
                 if MATCH!=None:
                     print(MATCH)
                 else:
                     pass
                     #print ""
+
+                #self.curr_fov.show()
+                cvimg = cv.cvtColor(numpy.asarray(self.curr_fov),cv.COLOR_RGB2GRAY)
+                #cvimg = numpy.asarray(self.get_diff())  
+                #im_at_mean = cv.adaptiveThreshold(im_gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 5, 7)
+                #ret, im_thre = cv.threshold(cvimg, 127, 255, cv.THRESH_BINARY)
+                #cv.circle(cvimg, (self.center_x, self.center_y), 7, (0, 0, 255), 3)
+                '''
+                for i in range(len(self.boxlist[0])):
+                    cv.rectangle(cvimg, (self.boxlist[2][i], self.boxlist[0][i]), (self.boxlist[3][i], self.boxlist[1][i]), (0, 255, 0), 3)
+                    '''
+                #cv.resizeWindow("OpenCV", 480, 520);
+                cv.imshow("OpenCV",cvimg)
+                cv.waitKey(1)
+                #cv.destroyAllWindows()
+
         try:
             thread.start_new_thread( opencvimg, ("Thread-1", 2, ) )
            # thread.start_new_thread( get_xy, ("Thread-2", 2, ) )
         except:
+
             print ("Error: unable to start thread")
+
 
     
 def main():

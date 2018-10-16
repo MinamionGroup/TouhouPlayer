@@ -255,18 +255,18 @@ class PlayerCharacter(object):
         #pass
 
     def start(self):
-        self.shoot_constantly = LoopingCall(self.shoot)
+        #self.shoot_constantly = LoopingCall(self.shoot)
         self.bomb_occasionally = LoopingCall(self.bomb)
         self.evader = LoopingCall(self.evade)
-        self.shoot_constantly.start(0)
+        #self.shoot_constantly.start(0)
         self.evader.start(.03)
         # self.bomb_occasionally.start(10, False)
 
 def start_game():
     time.sleep(2)
-    for i in range(5):
+    for i in range(6):
         key_press(0x2c)
-        time.sleep(1.5)
+        time.sleep(2)
 
 def main():
     print ("#auto drive start#")
