@@ -9,10 +9,8 @@ import cv2 as cv
 import os
 import time
 import numpy
-import Queue
-import thread
-
-import Tkinter
+import queue
+import thread6
 # Coordinates for gameplay area 
 #root = Tkinter.Tk()
 #root.title('th06_imgget')        #窗口标题
@@ -50,7 +48,7 @@ def take_screenshot(x0, y0, dx, dy):
     return Image.frombuffer("RGBA", (384, 448), image, "raw", "RGBA", 0, 1)
 
 class Radar(object):
-    def __init__(self, (hit_x, hit_y)):
+    def __init__(self, hit_x, hit_y):
         self.x0 = GAME_RECT['x0']
         self.y0 = GAME_RECT['y0']
         self.dx = GAME_RECT['dx']
@@ -216,11 +214,11 @@ class Radar(object):
         try:
             thread.start_new_thread( opencvimg, ("Thread-1", 2, ) )
         except:
-            print "Error: unable to start thread"
+            print("Error: unable to start thread")
 
     
 def main():
-    radar = Radar((195, 490))
+    radar = Radar(195, 490)
     
     #reactor.callWhenRunning(cv.imshow("OpenCV",cvimg))
     reactor.callWhenRunning(radar.start)

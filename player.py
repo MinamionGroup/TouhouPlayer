@@ -253,7 +253,7 @@ def start_game():
 def main():
     print ("#auto drive start#")
     start_game()
-    radar = Radar((HIT_X, HIT_Y))
+    radar = Radar(HIT_X, HIT_Y)
     player = PlayerCharacter(radar)
     reactor.callWhenRunning(player.start)
     reactor.callWhenRunning(radar.start)
