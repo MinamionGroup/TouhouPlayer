@@ -10,7 +10,6 @@ import cv2 as cv
 import cv2
 import os
 import time
-
 import numpy  
 import _thread as thread
 import subprocess
@@ -18,6 +17,9 @@ import re
 
 GAME_RECT = {'x0': 35, 'y0': 42, 'dx': 384, 'dy': 448}
 global centerx, centery
+
+
+
 def take_screenshot(x0, y0, dx, dy):
     """
     Takes a screenshot of the region of the active window starting from
